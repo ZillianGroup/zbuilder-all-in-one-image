@@ -40,8 +40,8 @@ echo
 echo                                                                                   
 
 # default config
-export PGDATA=/opt/illa/database/pgdata 
-export MINIODATA=/opt/illa/drive/
+export PGDATA=/opt/zweb/database/pgdata 
+export MINIODATA=/opt/zweb/drive/
 
 
 # init function
@@ -54,7 +54,7 @@ current_user="$(id -u)"
 echo
 echo -e "${LIGHTBLUE}[run pre init scripts]${NC}"
 echo
-/opt/illa/pre-init.sh
+/opt/zweb/pre-init.sh
 
 #
 # run entrypoint scripts
@@ -62,11 +62,11 @@ echo
 echo
 echo -e "${LIGHTBLUE}[run entrypoint scripts]${NC}"
 echo
-/opt/illa/postgres/postgres-entrypoint.sh 2>&1 | _label "[postgres entrypoint] "
-/opt/illa/redis/redis-entrypoint.sh 2>&1 | _label "[redis entrypoint] "
-/opt/illa/minio/minio-entrypoint.sh 2>&1 | _label "[minio entrypoint] "
-/opt/illa/nginx/nginx-entrypoint.sh 2>&1 | _label "[nginx entrypoint] "
-/opt/illa/envoy/envoy-entrypoint.sh 2>&1 | _label "[envoy entrypoint] "
+/opt/zweb/postgres/postgres-entrypoint.sh 2>&1 | _label "[postgres entrypoint] "
+/opt/zweb/redis/redis-entrypoint.sh 2>&1 | _label "[redis entrypoint] "
+/opt/zweb/minio/minio-entrypoint.sh 2>&1 | _label "[minio entrypoint] "
+/opt/zweb/nginx/nginx-entrypoint.sh 2>&1 | _label "[nginx entrypoint] "
+/opt/zweb/envoy/envoy-entrypoint.sh 2>&1 | _label "[envoy entrypoint] "
 
 # run postgres
 echo
@@ -82,7 +82,7 @@ fi
 echo
 echo -e "${LIGHTBLUE}[init data]${NC}"
 echo
-/opt/illa/postgres/postgres-init.sh 2>&1 | _label "[data init scripts] "
+/opt/zweb/postgres/postgres-init.sh 2>&1 | _label "[data init scripts] "
 
 
 #
@@ -103,14 +103,14 @@ echo
 /usr/local/bin/minio server $MINIODATA 2>&1 | _label "[minio] "  &
 
 
-# run illa units
+# run zweb units
 echo
-echo -e "${LIGHTBLUE}[run illa units]${NC}"
+echo -e "${LIGHTBLUE}[run zweb units]${NC}"
 echo
-/opt/illa/illa-builder-backend/bin/illa-builder-backend 2>&1 | _label "[illa-builder-backend] " &
-/opt/illa/illa-builder-backend/bin/illa-builder-backend-websocket 2>&1 | _label "[illa-builder-backend-websocket] " &
-/opt/illa/illa-supervisor-backend/bin/illa-supervisor-backend 2>&1 | _label "[illa-supervisor-backend] " &
-/opt/illa/illa-supervisor-backend/bin/illa-supervisor-backend-internal 2>&1 | _label "[illa-supervisor-backend-internal] "  &
+/opt/zweb/zweb-builder-backend/bin/zweb-builder-backend 2>&1 | _label "[zweb-builder-backend] " &
+/opt/zweb/zweb-builder-backend/bin/zweb-builder-backend-websocket 2>&1 | _label "[zweb-builder-backend-websocket] " &
+/opt/zweb/zweb-supervisor-backend/bin/zweb-supervisor-backend 2>&1 | _label "[zweb-supervisor-backend] " &
+/opt/zweb/zweb-supervisor-backend/bin/zweb-supervisor-backend-internal 2>&1 | _label "[zweb-supervisor-backend-internal] "  &
 
 #
 # run nginx
@@ -128,9 +128,9 @@ echo
 echo -e "${LIGHTBLUE}[run envoy]${NC}"
 echo
 if [ $current_user = '0' ]; then
-    gosu envoy /usr/local/bin/envoy -c /opt/illa/envoy/illa-unit-ingress.yaml 2>&1 | _label "[envoy] "   &
+    gosu envoy /usr/local/bin/envoy -c /opt/zweb/envoy/zweb-unit-ingress.yaml 2>&1 | _label "[envoy] "   &
 else
-    /usr/local/bin/envoy -c /opt/illa/envoy/illa-unit-ingress.yaml 2>&1 | _label "[envoy] "   &
+    /usr/local/bin/envoy -c /opt/zweb/envoy/zweb-unit-ingress.yaml 2>&1 | _label "[envoy] "   &
 fi
 
 
@@ -140,7 +140,7 @@ fi
 echo
 echo -e "${LIGHTBLUE}[run post init scripts]${NC}"
 echo
-/opt/illa/post-init.sh
+/opt/zweb/post-init.sh
 
 # loop
 while true; do

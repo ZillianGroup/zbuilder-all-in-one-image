@@ -1,15 +1,15 @@
-illa-builder Architecture Diagram
+zweb-builder Architecture Diagram
 ---------------------------------
 
 # Description
 
-This document describes the components and architecture of the illa-builder docker image.
+This document describes the components and architecture of the zweb-builder docker image.
 
 
 
 # Architecture Diagram
 
-![img](./assets/images/illa-builder-self-host-arch.svg)
+![img](./assets/images/zweb-builder-self-host-arch.svg)
 
 
 
@@ -17,15 +17,15 @@ This document describes the components and architecture of the illa-builder dock
 
 ## Envoy
 
-The entry of all requests, the configuration file is in [Envoy Config](../config/envoy/illa-unit-ingress.yaml)
+The entry of all requests, the configuration file is in [Envoy Config](../config/envoy/zweb-unit-ingress.yaml)
 
 ## Nginx
 
-Static file web server for illa-builder, the configuration file is in [Nginx Config](../config/nginx/illa-builder-frontend.conf)
+Static file web server for zweb-builder, the configuration file is in [Nginx Config](../config/nginx/zweb-builder-frontend.conf)
 
-## illa-builder
+## zweb-builder
 
-Static files for illa-builder front-end.
+Static files for zweb-builder front-end.
 
 ## builder-backend
 
@@ -35,13 +35,13 @@ Holds all APP, Resource and Action APIs.
 
 WebScoket server for editor, all components modify method are served by this unit. 
 
-For WebSocket message detail, please see [illa-builder-backend WebSocket Message Documents](https://github.com/illacloud/illa-builder-backend-websocket-docs).
+For WebSocket message detail, please see [zweb-builder-backend WebSocket Message Documents](https://github.com/zilliangroup/zweb-builder-backend-websocket-docs).
 
-## illa-supervisor-backend
+## zweb-supervisor-backend
 
 the supervisor unit holds all logon and user info APIs.
 
-## illa-supervisor-backend-internal
+## zweb-supervisor-backend-internal
 
 The supervisor internal unit holds ABAC and raw info APIs.
 

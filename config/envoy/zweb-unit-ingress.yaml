@@ -20,7 +20,7 @@ overload_manager:
 
 static_resources:
   listeners:
-    - name: illa_unit_listener
+    - name: zweb_unit_listener
       address:
         socket_address:
           address: 0.0.0.0
@@ -31,63 +31,63 @@ static_resources:
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 codec_type: AUTO
-                stat_prefix: illa_unit_self_host
+                stat_prefix: zweb_unit_self_host
                 upgrade_configs:
                   - upgrade_type: websocket
                 route_config:
                   name: local_route
                   virtual_hosts:
-                    - name: illa_builder
+                    - name: zweb_builder
                       domains: ["*"]
                       routes:
                         - match:
                             prefix: "/builder/"
                           route:
                             prefix_rewrite: "/"
-                            cluster: illa_builder_backend_unit
+                            cluster: zweb_builder_backend_unit
                         - match:
                             prefix: "/action/"
                           route:
                             prefix_rewrite: "/"
-                            cluster: illa_builder_backend_unit
+                            cluster: zweb_builder_backend_unit
                         - match:
                             prefix: "/resource/"
                           route:
                             prefix_rewrite: "/"
-                            cluster: illa_resource_backend_unit
+                            cluster: zweb_resource_backend_unit
                         - match:
                             prefix: "/builder-ws/"
                           route:
                             prefix_rewrite: "/"
-                            cluster: illa_builder_backend_ws_unit
+                            cluster: zweb_builder_backend_ws_unit
                             timeout: 0s
                         - match:
                             prefix: "/supervisor/"
                           route:
                             prefix_rewrite: "/"
-                            cluster: illa_supervisor_backend_unit
+                            cluster: zweb_supervisor_backend_unit
                         - match:
                             prefix: "/object-storage/"
                           route:
                             prefix_rewrite: "/"
                             host_rewrite_literal: "127.0.0.1:9000"
-                            cluster: illa_object_storage_unit
+                            cluster: zweb_object_storage_unit
                         - match:
                             prefix: "/"
                           route:
-                            cluster: illa_builder_frontend_unit
+                            cluster: zweb_builder_frontend_unit
                 http_filters:
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
   clusters:
-    - name: illa_builder_frontend_unit
+    - name: zweb_builder_frontend_unit
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       connect_timeout: 10s
       load_assignment:
-        cluster_name: illa_builder_frontend_unit
+        cluster_name: zweb_builder_frontend_unit
         endpoints:
           - lb_endpoints:
               - endpoint:
@@ -95,12 +95,12 @@ static_resources:
                     socket_address:
                       address: 127.0.0.1
                       port_value: 8000
-    - name: illa_builder_backend_unit
+    - name: zweb_builder_backend_unit
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       connect_timeout: 10s
       load_assignment:
-        cluster_name: illa_builder_backend_unit
+        cluster_name: zweb_builder_backend_unit
         endpoints:
           - lb_endpoints:
               - endpoint:
@@ -108,12 +108,12 @@ static_resources:
                     socket_address:
                       address: 127.0.0.1
                       port_value: 8001
-    - name: illa_resource_backend_unit
+    - name: zweb_resource_backend_unit
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       connect_timeout: 10s
       load_assignment:
-        cluster_name: illa_resource_backend_unit
+        cluster_name: zweb_resource_backend_unit
         endpoints:
           - lb_endpoints:
               - endpoint:
@@ -121,12 +121,12 @@ static_resources:
                     socket_address:
                       address: 127.0.0.1
                       port_value: 8001
-    - name: illa_builder_backend_ws_unit
+    - name: zweb_builder_backend_ws_unit
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       connect_timeout: 10s
       load_assignment:
-        cluster_name: illa_builder_backend_ws_unit
+        cluster_name: zweb_builder_backend_ws_unit
         endpoints:
           - lb_endpoints:
               - endpoint:
@@ -134,12 +134,12 @@ static_resources:
                     socket_address:
                       address: 127.0.0.1
                       port_value: 8002
-    - name: illa_supervisor_backend_unit
+    - name: zweb_supervisor_backend_unit
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       connect_timeout: 10s
       load_assignment:
-        cluster_name: illa_supervisor_backend_unit
+        cluster_name: zweb_supervisor_backend_unit
         endpoints:
           - lb_endpoints:
               - endpoint:
@@ -147,12 +147,12 @@ static_resources:
                     socket_address:
                       address: 127.0.0.1
                       port_value: 8003
-    - name: illa_object_storage_unit
+    - name: zweb_object_storage_unit
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       connect_timeout: 10s
       load_assignment:
-        cluster_name: illa_object_storage_unit
+        cluster_name: zweb_object_storage_unit
         endpoints:
           - lb_endpoints:
               - endpoint:
@@ -160,12 +160,12 @@ static_resources:
                     socket_address:
                       address: 127.0.0.1
                       port_value: 9000
-    - name: illa_supervisor_backend_internal_unit
+    - name: zweb_supervisor_backend_internal_unit
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       connect_timeout: 10s
       load_assignment:
-        cluster_name: illa_supervisor_backend_internal_unit
+        cluster_name: zweb_supervisor_backend_internal_unit
         endpoints:
           - lb_endpoints:
               - endpoint:

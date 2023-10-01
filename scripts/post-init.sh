@@ -72,20 +72,20 @@ _main() {
     echo "$(_check_process 'nginx')"
     echo 
 
-    echo -e "${LIGHTBLUE}┌[checking porcess illa-builder-backend]${NC}"
-    echo "$(_check_process 'illa-builder-backend')"
+    echo -e "${LIGHTBLUE}┌[checking porcess zweb-builder-backend]${NC}"
+    echo "$(_check_process 'zweb-builder-backend')"
     echo 
 
-    echo -e "${LIGHTBLUE}┌[checking porcess illa-builder-backend-websocket]${NC}"
-    echo "$(_check_process 'illa-builder-backend-websocket')"
+    echo -e "${LIGHTBLUE}┌[checking porcess zweb-builder-backend-websocket]${NC}"
+    echo "$(_check_process 'zweb-builder-backend-websocket')"
     echo 
 
-    echo -e "${LIGHTBLUE}┌[checking porcess illa-supervisor-backend]${NC}"
-    echo "$(_check_process 'illa-supervisor-backend')"
+    echo -e "${LIGHTBLUE}┌[checking porcess zweb-supervisor-backend]${NC}"
+    echo "$(_check_process 'zweb-supervisor-backend')"
     echo 
 
-    echo -e "${LIGHTBLUE}┌[checking porcess illa-supervisor-backend-internal]${NC}"
-    echo "$(_check_process 'illa-supervisor-backend-internal')"
+    echo -e "${LIGHTBLUE}┌[checking porcess zweb-supervisor-backend-internal]${NC}"
+    echo "$(_check_process 'zweb-supervisor-backend-internal')"
     echo 
 
 

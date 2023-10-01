@@ -34,7 +34,7 @@ _main() {
 
 
 echo 
-echo -e "${LIGHTBLUE}[postgres-init.sh] init illa_builder & illa_supervisor database.${NC}"
+echo -e "${LIGHTBLUE}[postgres-init.sh] init zweb_builder & zweb_supervisor database.${NC}"
 echo 
 
 
@@ -56,16 +56,16 @@ echo -e "${LIGHTBLUE}init database.${NC}"
 echo 
 psql -U postgres postgres <<EOF
 
--- init illa_builder
+-- init zweb_builder
 
 
-create database illa_builder;
+create database zweb_builder;
 
-\c illa_builder;
+\c zweb_builder;
 
-create user illa_builder with encrypted password 'illa2022';
+create user zweb_builder with encrypted password 'zweb2022';
 
-grant all privileges on database illa_builder to illa_builder;
+grant all privileges on database zweb_builder to zweb_builder;
 
 CREATE EXTENSION pg_trgm;
 
@@ -88,7 +88,7 @@ create table if not exists apps (
 
 );
 
-alter table apps owner to illa_builder;
+alter table apps owner to zweb_builder;
 
 -- app_snapshots
 create table if not exists app_snapshots (
@@ -102,7 +102,7 @@ create table if not exists app_snapshots (
     created_at              timestamp                       not null
 );
 
-alter table app_snapshots owner to illa_builder;
+alter table app_snapshots owner to zweb_builder;
 
 -- resource
 create table if not exists resources (
@@ -118,7 +118,7 @@ create table if not exists resources (
     updated_by              bigint                          not null
 );
 
-alter table resources owner to illa_builder;
+alter table resources owner to zweb_builder;
 
 -- actions
 create table if not exists actions (
@@ -141,7 +141,7 @@ create table if not exists actions (
 );
 
 create index if not exists actions_at_apprefid_and_version on actions (app_ref_id, version);
-alter table actions owner to illa_builder;
+alter table actions owner to zweb_builder;
 
 
 ALTER TABLE actions DROP CONSTRAINT IF EXISTS actions_displayname_constrainte,
@@ -175,7 +175,7 @@ CREATE INDEX tree_states_with_fulltextgin_at_name ON tree_states USING gin (to_t
 ALTER TABLE tree_states DROP CONSTRAINT IF EXISTS tree_states_displayname_constrainte,
 ADD CONSTRAINT tree_states_displayname_constrainte UNIQUE (version, app_ref_id, name);
 
-alter table tree_states owner to illa_builder;
+alter table tree_states owner to zweb_builder;
 
 -- kv_states, component kv_states
 create table if not exists kv_states (
@@ -199,7 +199,7 @@ CREATE INDEX kv_states_with_fulltextgin_at_key ON kv_states USING gin (to_tsvect
 ALTER TABLE kv_states DROP CONSTRAINT IF EXISTS kv_states_displayname_constrainte,
 ADD CONSTRAINT kv_states_displayname_constrainte UNIQUE (version, app_ref_id, key);
 
-alter table kv_states owner to illa_builder;
+alter table kv_states owner to zweb_builder;
 
 -- set_states, component set_states
 create table if not exists set_states (
@@ -223,18 +223,18 @@ CREATE INDEX set_states_with_fulltextgin_at_value ON set_states USING gin (to_ts
 ALTER TABLE set_states DROP CONSTRAINT IF EXISTS set_states_displayname_constrainte,
 ADD CONSTRAINT set_states_displayname_constrainte UNIQUE (version, app_ref_id, value);
 
-alter table set_states owner to illa_builder;
+alter table set_states owner to zweb_builder;
 
 
 
--- init illa_supervisor
+-- init zweb_supervisor
 
 
 -- init
-create database illa_supervisor;
-\c illa_supervisor;
-create user illa_supervisor with encrypted password 'illa2022';
-grant all privileges on database illa_supervisor to illa_supervisor;
+create database zweb_supervisor;
+\c zweb_supervisor;
+create user zweb_supervisor with encrypted password 'zweb2022';
+grant all privileges on database zweb_supervisor to zweb_supervisor;
 CREATE EXTENSION pg_trgm;
 CREATE EXTENSION btree_gin;
 
@@ -261,7 +261,7 @@ create table if not exists teams (
 CREATE INDEX teams_uid ON teams (uid);
 
 alter table
-    teams owner to illa_supervisor;
+    teams owner to zweb_supervisor;
 
 -- users
 create table if not exists users (
@@ -284,7 +284,7 @@ CREATE INDEX users_nickname_fulltext ON users USING gin (to_tsvector('english', 
 CREATE INDEX users_email_fulltext ON users USING gin (to_tsvector('english', email));
 
 alter table
-    users owner to illa_supervisor;
+    users owner to zweb_supervisor;
 
 -- team_members
 create table if not exists team_members (
@@ -301,7 +301,7 @@ create table if not exists team_members (
 CREATE INDEX team_members_team_and_user_id ON team_members (team_id, user_id);
 
 alter table
-    team_members owner to illa_supervisor;
+    team_members owner to zweb_supervisor;
 
 -- invites
 create table if not exists invites (
@@ -324,7 +324,7 @@ CREATE INDEX invites_email ON invites (email);
 CREATE INDEX invites_user_role ON invites (user_role);
 
 alter table
-    invites owner to illa_supervisor;
+    invites owner to zweb_supervisor;
 
 
 /**
@@ -345,7 +345,7 @@ create table if not exists roles (
 );
 CREATE INDEX roles_id_team_id ON roles(id, team_id);
 CREATE INDEX roles_name_fulltext ON roles USING gin (to_tsvector('english', name));
-alter table roles owner to illa_supervisor;
+alter table roles owner to zweb_supervisor;
 
 -- user_role_relations
 create table if not exists user_role_relations (
@@ -358,7 +358,7 @@ create table if not exists user_role_relations (
     updated_at               timestamp                            not null
 );
 CREATE INDEX user_role_relations_team_role_user_id ON user_role_relations(team_id, role_id, user_id);
-alter table user_role_relations owner to illa_supervisor;
+alter table user_role_relations owner to zweb_supervisor;
 
 -- unit_role_relations
 create table if not exists unit_role_relations (
@@ -372,7 +372,7 @@ create table if not exists unit_role_relations (
     updated_at               timestamp                            not null
 );
 CREATE INDEX unit_role_relations_team_role_unit_id_and_unit_type ON unit_role_relations(team_id, role_id, unit_id, unit_type);
-alter table unit_role_relations owner to illa_supervisor;
+alter table unit_role_relations owner to zweb_supervisor;
 
 
 /**
@@ -384,7 +384,7 @@ alter table unit_role_relations owner to illa_supervisor;
 INSERT INTO teams ( 
     id, uid, name, identifier, icon, permission, created_at, updated_at
 ) SELECT
-    0, '83cfb484-0a3f-4bfd-aab3-70432d021cab', 'my-team'    , '0'  , 'https://cdn.illacloud.com/email-template/people.png', '{"allowEditorInvite": true, "allowViewerInvite": true, "inviteLinkEnabled": true, "allowEditorManageTeamMember": true, "allowViewerManageTeamMember": true, "blockRegister": false}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+    0, '83cfb484-0a3f-4bfd-aab3-70432d021cab', 'my-team'    , '0'  , 'https://cdn.zilliangroup.com/email-template/people.png', '{"allowEditorInvite": true, "allowViewerInvite": true, "inviteLinkEnabled": true, "allowEditorManageTeamMember": true, "allowViewerManageTeamMember": true, "blockRegister": false}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 WHERE NOT EXISTS (
     SELECT id FROM teams WHERE id = 0
 );
@@ -420,7 +420,7 @@ WHERE NOT EXISTS (
 EOF
 
 echo
-echo -e "${LIGHTBLUE}[postgres-init.sh] init illa_builder database done.${NC}"
+echo -e "${LIGHTBLUE}[postgres-init.sh] init zweb_builder database done.${NC}"
 echo
 
 }

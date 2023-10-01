@@ -1,16 +1,16 @@
 # 
-# build illa-builder-frontend
+# build zweb-builder-frontend
 #
 
-FROM node:18-bullseye as illa-builder-frontend
+FROM node:18-bullseye as zweb-builder-frontend
 
 ## clone frontend
-WORKDIR /opt/illa/illa-builder-frontend
-RUN cd /opt/illa/illa-builder-frontend
+WORKDIR /opt/zweb/zweb-builder-frontend
+RUN cd /opt/zweb/zweb-builder-frontend
 RUN pwd
 
 ARG FE=main
-RUN git clone -b ${FE} https://github.com/illacloud/illa-builder.git /opt/illa/illa-builder-frontend/
+RUN git clone -b ${FE} https://github.com/zilliangroup/zweb-builder.git /opt/zweb/zweb-builder-frontend/
 RUN git submodule init; \
     git submodule update; 
 
@@ -22,10 +22,10 @@ RUN pnpm build-self
 
 
 # 
-# build illa-builder-backend & illa-builder-backend-ws
+# build zweb-builder-backend & zweb-builder-backend-ws
 #
 
-FROM golang:1.19-bullseye as illa-builder-backend
+FROM golang:1.19-bullseye as zweb-builder-backend
 
 ## set env
 ENV LANG C.UTF-8
@@ -37,12 +37,12 @@ ENV GO111MODULE=on \
     GOARCH=amd64
 
 ## build
-WORKDIR /opt/illa/illa-builder-backend
-RUN cd  /opt/illa/illa-builder-backend
+WORKDIR /opt/zweb/zweb-builder-backend
+RUN cd  /opt/zweb/zweb-builder-backend
 RUN ls -alh
 
 ARG BE=main
-RUN git clone -b ${BE} https://github.com/illacloud/builder-backend.git ./
+RUN git clone -b ${BE} https://github.com/zilliangroup/zweb-builder-backend.git ./
 
 RUN cat ./Makefile
 
@@ -53,10 +53,10 @@ RUN ls -alh ./bin/*
 
 
 #
-# build illa-supervisor-backend & illa-supervisor-backend-internal
+# build zweb-supervisor-backend & zweb-supervisor-backend-internal
 #
 
-FROM golang:1.19-bullseye as illa-supervisor-backend
+FROM golang:1.19-bullseye as zweb-supervisor-backend
 
 ## set env
 ENV LANG C.UTF-8
@@ -68,12 +68,12 @@ ENV GO111MODULE=on \
     GOARCH=amd64
 
 ## build
-WORKDIR /opt/illa/illa-supervisor-backend
-RUN cd  /opt/illa/illa-supervisor-backend
+WORKDIR /opt/zweb/zweb-supervisor-backend
+RUN cd  /opt/zweb/zweb-supervisor-backend
 RUN ls -alh
 
 ARG SBE=main
-RUN git clone -b ${SBE} https://github.com/illacloud/illa-supervisor-backend.git ./
+RUN git clone -b ${SBE} https://github.com/zilliangroup/zweb-supervisor-backend.git ./
 
 RUN cat ./Makefile
 
@@ -148,29 +148,29 @@ RUN set -eux; \
 # 
 # init working folder and users
 #
-RUN mkdir /opt/illa
+RUN mkdir /opt/zweb
 RUN addgroup --system --gid 102 nginx \
     && adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false --uid 102 nginx \
     && adduser --group --system envoy \
     && adduser --group --system minio \
     && adduser --group --system redis \
-    && adduser --group --system illa \
+    && adduser --group --system zweb \
     && cat /etc/group 
 
 #
-# copy illa-builder-backend bin
+# copy zweb-builder-backend bin
 #
-COPY --from=illa-builder-backend /opt/illa/illa-builder-backend /opt/illa/illa-builder-backend
+COPY --from=zweb-builder-backend /opt/zweb/zweb-builder-backend /opt/zweb/zweb-builder-backend
 
 #
-# copy illa-supervisor-backend bin
+# copy zweb-supervisor-backend bin
 #
-COPY --from=illa-supervisor-backend /opt/illa/illa-supervisor-backend /opt/illa/illa-supervisor-backend
+COPY --from=zweb-supervisor-backend /opt/zweb/zweb-supervisor-backend /opt/zweb/zweb-supervisor-backend
 
 #
-# copy illa-builder-frontend
+# copy zweb-builder-frontend
 #
-COPY --from=illa-builder-frontend /opt/illa/illa-builder-frontend/apps/builder/dist /opt/illa/illa-builder-frontend
+COPY --from=zweb-builder-frontend /opt/zweb/zweb-builder-frontend/apps/builder/dist /opt/zweb/zweb-builder-frontend
 
 
 #
@@ -183,10 +183,10 @@ RUN gosu --version; \
 #
 # copy redis
 #
-RUN mkdir -p /opt/illa/cache-data/; \
-    mkdir -p /opt/illa/redis/; \
-    chown -fR redis:redis /opt/illa/cache-data/; \
-    chown -fR redis:redis /opt/illa/redis/; 
+RUN mkdir -p /opt/zweb/cache-data/; \
+    mkdir -p /opt/zweb/redis/; \
+    chown -fR redis:redis /opt/zweb/cache-data/; \
+    chown -fR redis:redis /opt/zweb/redis/; 
 
 
 COPY --from=cache-redis /usr/local/bin/redis-benchmark /usr/local/bin/redis-benchmark  
@@ -196,29 +196,29 @@ COPY --from=cache-redis /usr/local/bin/redis-cli       /usr/local/bin/redis-cli
 COPY --from=cache-redis /usr/local/bin/redis-sentinel  /usr/local/bin/redis-sentinel   
 COPY --from=cache-redis /usr/local/bin/redis-server    /usr/local/bin/redis-server      
 
-COPY scripts/redis-entrypoint.sh    /opt/illa/redis  
-RUN chmod +x /opt/illa/redis/redis-entrypoint.sh
+COPY scripts/redis-entrypoint.sh    /opt/zweb/redis  
+RUN chmod +x /opt/zweb/redis/redis-entrypoint.sh
 
 
 #
 # copy minio
 #
-RUN mkdir -p /opt/illa/drive/; \
-    mkdir -p /opt/illa/minio/; \
-    chown -fR minio:minio /opt/illa/drive/; \
-    chown -fR minio:minio /opt/illa/minio/;
+RUN mkdir -p /opt/zweb/drive/; \
+    mkdir -p /opt/zweb/minio/; \
+    chown -fR minio:minio /opt/zweb/drive/; \
+    chown -fR minio:minio /opt/zweb/minio/;
 
 
 COPY --from=drive-minio /opt/bin/minio /usr/local/bin/minio 
 
-COPY scripts/minio-entrypoint.sh /opt/illa/minio
-RUN chmod +x /opt/illa/minio/minio-entrypoint.sh
+COPY scripts/minio-entrypoint.sh /opt/zweb/minio
+RUN chmod +x /opt/zweb/minio/minio-entrypoint.sh
 
 
 #
 # copy nginx
 #
-RUN mkdir /opt/illa/nginx
+RUN mkdir /opt/zweb/nginx
 
 COPY --from=webserver-nginx /usr/sbin/nginx  /usr/sbin/nginx 
 COPY --from=webserver-nginx /usr/lib/nginx   /usr/lib/nginx 
@@ -226,8 +226,8 @@ COPY --from=webserver-nginx /etc/nginx       /etc/nginx
 COPY --from=webserver-nginx /usr/share/nginx /usr/share/nginx 
 
 COPY config/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY config/nginx/illa-builder-frontend.conf /etc/nginx/conf.d/
-COPY scripts/nginx-entrypoint.sh /opt/illa/nginx
+COPY config/nginx/zweb-builder-frontend.conf /etc/nginx/conf.d/
+COPY scripts/nginx-entrypoint.sh /opt/zweb/nginx
 
 RUN set -x \
     && mkdir /var/log/nginx/ \
@@ -238,7 +238,7 @@ RUN set -x \
     && touch /tmp/nginx.pid \
     && chmod 0777 /tmp/nginx.pid \
     && rm /etc/nginx/conf.d/default.conf \
-    && chmod +x /opt/illa/nginx/nginx-entrypoint.sh \
+    && chmod +x /opt/zweb/nginx/nginx-entrypoint.sh \
     && chown -R $UID:0 /var/cache/nginx \
     && chmod -R g+w /var/cache/nginx \
     && chown -R $UID:0 /etc/nginx \
@@ -253,17 +253,17 @@ RUN nginx -t
 ENV ENVOY_UID 0 # set to root for envoy listing on 80 prot
 ENV ENVOY_GID 0
 
-RUN mkdir -p /opt/illa/envoy \
+RUN mkdir -p /opt/zweb/envoy \
     && mkdir -p /etc/envoy
 
 COPY --from=ingress-envoy  /usr/local/bin/envoy* /usr/local/bin/
 COPY --from=ingress-envoy  /usr/local/bin/su-exec  /usr/local/bin/
 COPY --from=ingress-envoy  /etc/envoy/envoy.yaml  /etc/envoy/
 
-COPY config/envoy/illa-unit-ingress.yaml /opt/illa/envoy
-COPY scripts/envoy-entrypoint.sh /opt/illa/envoy
+COPY config/envoy/zweb-unit-ingress.yaml /opt/zweb/envoy
+COPY scripts/envoy-entrypoint.sh /opt/zweb/envoy
 
-RUN chmod +x /opt/illa/envoy/envoy-entrypoint.sh \
+RUN chmod +x /opt/zweb/envoy/envoy-entrypoint.sh \
     && ls -alh /usr/local/bin/envoy* \
     && ls -alh /usr/local/bin/su-exec \
     && ls -alh /etc/envoy/envoy.yaml
@@ -272,36 +272,36 @@ RUN chmod +x /opt/illa/envoy/envoy-entrypoint.sh \
 #
 # init database 
 #
-RUN mkdir -p /opt/illa/database/ \
-    && mkdir -p /opt/illa/postgres/
+RUN mkdir -p /opt/zweb/database/ \
+    && mkdir -p /opt/zweb/postgres/
 
-COPY scripts/postgres-entrypoint.sh  /opt/illa/postgres
-COPY scripts/postgres-init.sh /opt/illa/postgres
-RUN chmod +x /opt/illa/postgres/postgres-entrypoint.sh \
-    && chmod +x /opt/illa/postgres/postgres-init.sh 
+COPY scripts/postgres-entrypoint.sh  /opt/zweb/postgres
+COPY scripts/postgres-init.sh /opt/zweb/postgres
+RUN chmod +x /opt/zweb/postgres/postgres-entrypoint.sh \
+    && chmod +x /opt/zweb/postgres/postgres-init.sh 
 
 
 #
 # add main scripts
 #
-COPY scripts/main.sh /opt/illa/
-COPY scripts/pre-init.sh /opt/illa/
-COPY scripts/post-init.sh /opt/illa/
-RUN chmod +x /opt/illa/main.sh 
-RUN chmod +x /opt/illa/pre-init.sh 
-RUN chmod +x /opt/illa/post-init.sh 
+COPY scripts/main.sh /opt/zweb/
+COPY scripts/pre-init.sh /opt/zweb/
+COPY scripts/post-init.sh /opt/zweb/
+RUN chmod +x /opt/zweb/main.sh 
+RUN chmod +x /opt/zweb/pre-init.sh 
+RUN chmod +x /opt/zweb/post-init.sh 
 
 #
 # modify global permission
 #  
-COPY config/system/group /opt/illa/
-RUN cat /opt/illa/group > /etc/group; rm /opt/illa/group
-RUN chown -fR illa:root /opt/illa
-RUN chmod 775 -fR /opt/illa
+COPY config/system/group /opt/zweb/
+RUN cat /opt/zweb/group > /etc/group; rm /opt/zweb/group
+RUN chown -fR zweb:root /opt/zweb
+RUN chmod 775 -fR /opt/zweb
 
 #
 # run
 #
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 EXPOSE 2022
-CMD ["/opt/illa/main.sh"]
+CMD ["/opt/zweb/main.sh"]
